@@ -27,8 +27,8 @@ declare MINIO_JAR_NAME
 declare OK_HTTP_JAR_NAME
 
 build() {
-	MINIO_JAR_NAME=`find $ROOT_DIR/bin -maxdepth 1 -mindepth 1  -name 'minio*.jar'`
-	OK_HTTP_JAR_NAME=`find $ROOT_DIR/bin -maxdepth 1 -mindepth 1  -name 'okhttp*.jar'`
+	MINIO_JAR_NAME=`find . -maxdepth 1 -mindepth 1  -name 'minio*.jar'`
+	OK_HTTP_JAR_NAME=`find . -maxdepth 1 -mindepth 1  -name 'okhttp*.jar'`
 
 	if [ -n $MINIO_JAR_NAME ]; then 
 		javac -cp $MINIO_JAR_NAME $CURRENT_DIR/FunctionalTest.java $CURRENT_DIR/PutObjectRunnable.java

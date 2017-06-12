@@ -25,10 +25,10 @@ LOG_FILE = "output.log"
 logger = logger.create_logger(sys.argv[1] + "/" + LOG_FILE)
 fake = Factory.create()
 # Generate unique string
-S3_ADDRESS = os.getenv('S3_ADDRESS')
+S3_ADDRESS = os.getenv('SERVER_ENDPOINT')
 ACCESS_KEY = os.getenv('ACCESS_KEY')
 SECRET_KEY = os.getenv('SECRET_KEY') 
-S3_SECURE  = os.getenv('S3_SECURE')
+S3_SECURE  = os.getenv('ENABLE_HTTPS')
 is_s3 = S3_ADDRESS.startswith("s3.amazonaws")
 _http = None
 

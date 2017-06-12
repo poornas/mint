@@ -16,7 +16,7 @@
 #
 
 ROOT_DIR="$PWD"
-TEST_DIR="Apps"
+TEST_DIR="apps"
 
 let "errorCounter = 0"
 
@@ -24,53 +24,59 @@ let "errorCounter = 0"
 setup() {
 	set -e
 
-	# If S3_ADDRESS is not set the tests are run on play.minio.io by default.
+	# If SERVER_ENDPOINT is not set the tests are run on play.minio.io by default.
 
-	# S3_ADDRESS is passed on as env variables while starting the docker container.
+	# SERVER_ENDPOINT is passed on as env variables while starting the docker container.
 	# see README.md for info on options.
-	#  Note: https://play.minio.io hosts publicly available Minio server.
-	if [ -z "$S3_ADDRESS" ]; then
-	    export S3_ADDRESS="play.minio.io:9000"
+	if [ -z "$SERVER_ENDPOINT" ]; then
+	    export SERVER_ENDPOINT="play.minio.io:9000"
 	    export ACCESS_KEY="Q3AM3UQ867SPQQA43P2F"
 	    export SECRET_KEY="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
-	    export S3_SECURE=1
-	    export S3_REGION="us-east1"  # needed for minio-java
+	    export ENABLE_HTTPS=1
 	fi
+
+	# other env vars
+	export S3_REGION="us-east1"  # needed for minio-java
+	export LOG_DIR="log"
 }
 
 # Run the current SDK Test
 currTest() {
-	chmod +x ./$TEST_DIR/$1/run.sh
-	./$TEST_DIR/$1/run.sh  $ROOT_DIR  $TEST_DIR $(basename $1)
+	cd $TEST_DIR/$1
+	chmod +x ./run.sh
+	./run.sh  $ROOT_DIR  $TEST_DIR $(basename $1)
+	cd ../..
 }
 
 # Cycle through the sdk directories and run sdk tests
 runTests() {
-	for i in $(yq  -r '.Apps[]' $ROOT_DIR/config.yaml ); 
+	for i in $(yq  -r '.apps[]' $ROOT_DIR/config.yaml ); 
 		do 
-			f=$ROOT_DIR/Apps/$i
+			f=$ROOT_DIR/$TEST_DIR/$i
 			echo "running .... $f"
 			if [ -d ${f} ]; then
+
 		        # Will not run if no directories are available
-		        sdk="$(basename $f)"
+		        SDK="$(basename $f)"
 
 		        # Clear log directories before run.
-		        LOG_DIR=$ROOT_DIR/log/$sdk/
-		        if [ ! -d $LOG_DIR ]
-			  		then
-			  			 mkdir $LOG_DIR
-			  		else 
-			  			rm -rf $LOG_DIR/*
-				fi
+		        #SDK_LOG_DIR=$ROOT_DIR/$LOG_DIR/$SDK/
+		        #if [ ! -d $SDK_LOG_DIR ]
+			  	#	then
+			  	#		mkdir $SDK_LOG_DIR
+			  	#	else 
+			  	#		rm -rf $SDK_LOG_DIR/*
+				#fi
 
 				# Run test
-				currTest "$sdk" -s  2>&1  >| $LOG_DIR/"$sdk"_log.txt  
-				cat $LOG_DIR/"$sdk"_log.txt
+				currTest "$SDK" #-s  2>&1  >| $SDK_LOG_DIR/"$SDK"_log.txt  
+				
+				# cat $SDK_LOG_DIR/"$sdk"_log.txt
 				# Count failed runs
-				if [ -s "$LOG_DIR/error.log" ] 
-		 		 then 
-		     		let "errorCounter = errorCounter + 1" 
-				 fi
+				#if [ -s "$SDK_LOG_DIR/error.log" ] 
+		 		# then 
+		     	#	let "errorCounter = errorCounter + 1" 
+				# fi
 			fi
 		done
 }
@@ -78,8 +84,8 @@ runTests() {
 setup
 runTests
 
-if [ $errorCounter -ne 0 ]; then 
-	exit 1
-fi
+#if [ $errorCounter -ne 0 ]; then 
+#	exit 1
+#fi
 
-exit 0
+# exit 0

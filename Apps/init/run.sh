@@ -15,46 +15,49 @@
 #  limitations under the License.
 #
 
-# Add Run instructions for SDK tests here.
-# The Build instructions should be added to build.sh
-
 setLogEnv() {
-    export INIT_LOG_DIRECTORY=$(echo $LOG_DIRECTORY/${PWD##*/})
-    export INIT_ERROR_LOG_FILE=$(echo $INIT_LOG_DIRECTORY/"error.log")
-    export INIT_LOG_FILE=$(echo $INIT_LOG_DIRECTORY/"run.log")
+    export INIT_LOG_DIR=$(echo ../../$LOG_DIR/${PWD##*/})
+    export INIT_ERROR_LOG_FILE=$(echo $INIT_LOG_DIR/"error.log")
+    export INIT_LOG_FILE=$(echo $INIT_LOG_DIR/"output.log")
 }
 
 prepareLogDir() {
     # clear old logs 
-    rm -r echo $INIT_LOG_DIRECTORY 2> /dev/null
+    rm -r echo $INIT_LOG_DIR 2> /dev/null
 
     # create log directory
-    mkdir $INIT_LOG_DIRECTORY 2> /dev/null
+    mkdir $INIT_LOG_DIR 2> /dev/null
 
     # create log files
     touch $INIT_ERROR_LOG_FILE
     touch $INIT_LOG_FILE
 }
 
-initCheck() {
-  # Get minio admin package  
-  go get -u github.com/minio/minio/pkg/madmin
-  
-  # Build the endpoint checker program.
-  go build initCheck.go
-
-  # This is to avoid https://github.com/docker/docker/issues/9547
-  sync
-  
-  # Run the check
-  ./initCheck
+cleanUp() {
+    # remove executable 
+    rm initCheck 2> /dev/null
 }
 
-# Set log folders
+setUpTestClient() {
+    go build -o initCheck ./initCheck.go
+}
+
+runTests() {
+	chmod +x initCheck
+    ./initCheck
+}
+
+# Setup log directories 
 setLogEnv
 
-# Create log folders
+# Create the log dir and files
 prepareLogDir
 
-# Run the init tests
-initCheck
+# Build and set the executable in bin directory
+setUpTestClient
+
+# run the tests
+runTests
+
+# Remove executable from bin driectory
+cleanUp

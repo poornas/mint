@@ -40,8 +40,8 @@ describe('functional tests', function() {
     accessKey: 'Q3AM3UQ867SPQQA43P2F',
     secretKey: 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
   }
-  if (process.env['S3_ENDPOINT']) {
-    playConfig.endPoint = process.env['S3_ENDPOINT']
+  if (process.env['SERVER_ENDPOINT']) {
+    playConfig.endPoint = process.env['SERVER_ENDPOINT']
   }
   if (process.env['ACCESS_KEY']) {
     playConfig.accessKey = process.env['ACCESS_KEY']
