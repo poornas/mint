@@ -15,51 +15,26 @@
 #  limitations under the License.
 #
 
-setLogEnv() {
-    export GO_LOG_DIRECTORY=$(echo ../../$LOG_DIR/${PWD##*/})
-    export GO_ERROR_LOG_FILE=$(echo $GO_LOG_DIRECTORY/"error.log")
-    export GO_LOG_FILE=$(echo $GO_LOG_DIRECTORY/"output.log")
-}
-
-prepareLogDir() {
-    # clear old logs 
-    rm -r echo $GO_LOG_DIRECTORY 2> /dev/null
-
-    # create log directory
-    mkdir $GO_LOG_DIRECTORY 2> /dev/null
-
-    # create log files
-    touch $GO_ERROR_LOG_FILE
-    touch $GO_LOG_FILE
-}
-
-cleanUp(){
-    # remove binary 
-    rm minio.test
-}
-
-setUpTestClient() {
+build() {
 	go test -c api_functional_v4_test.go -o minio.test
 }
 
-runTests() {
+run() {
 	chmod +x ./minio.test
-	./minio.test -test.short 
+	./minio.test -test.short
 }
 
-# Setup log directories 
-setLogEnv
+main() {
+    # Build test file binary
+    build -s  2>&1  >| $1
 
-# Create the log dir and files
-prepareLogDir
+    # run the tests
+    run -s  2>&1  >| $1
 
-# Build test file binary
-setUpTestClient -s  2>&1  >| $GO_LOG_FILE
+    grep -q 'Error:|FAIL' $1 > $2
 
-# run the tests
-runTests -s  2>&1  >| $GO_LOG_FILE
+    return 0
+}
 
-# Remove test binary
-cleanUp
-
-grep -q 'Error:|FAIL' $GO_LOG_FILE > $GO_ERROR_LOG_FILE
+# invoke the script
+main "$@"
