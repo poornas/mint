@@ -16,14 +16,14 @@
 #
 
 setLogEnv() {
-    export MC_LOG_DIRECTORY=$(echo $LOG_DIRECTORY/${PWD##*/})
+    export MC_LOG_DIRECTORY=$(echo ../../$LOG_DIR/${PWD##*/})
     export MC_ERROR_LOG_FILE=$(echo $MC_LOG_DIRECTORY/"error.log")
-    export MC_LOG_FILE=$(echo $MC_LOG_DIRECTORY/"run.log")
+    export MC_LOG_FILE=$(echo $MC_LOG_DIRECTORY/"output.log")
 
     if [ $ENABLE_HTTPS -eq "1" ]; then
-        export TARGET_ADDRESS_WITH_PROTOCOL="https://"$S3_ADDRESS
+        export TARGET_ADDRESS_WITH_PROTOCOL="https://"$SERVER_ENDPOINT
     else
-        export TARGET_ADDRESS_WITH_PROTOCOL="http://"$S3_ADDRESS
+        export TARGET_ADDRESS_WITH_PROTOCOL="http://"$SERVER_ENDPOINT
     fi
 }
 
@@ -39,14 +39,15 @@ prepareLogDir() {
     touch $MC_LOG_FILE
 }
 
-cleanUP(){
+cleanUp(){
     # remove mc 
     rm mc
 }
 
-downloadMC() {
+setUpTestClient() {
     # Download latest MC release
-    curl -s -o mc https://dl.minio.io/client/mc/release/linux-amd64/mc
+    #curl -s -o mc https://dl.minio.io/client/mc/release/linux-amd64/mc
+    curl -s -o mc https://dl.minio.io/client/mc/release/darwin-amd64/mc
     res=$?
     if test "$res" != "0"; then
         echo "curl command to download mc failed with: $res" >> $MC_ERROR_LOG_FILE
@@ -60,7 +61,8 @@ downloadMC() {
 }
 
 # Execute test.sh 
-runMCTests() {
+runTests() {
+    chmod +x ./test.sh
     ./test.sh
 }
 
@@ -71,11 +73,11 @@ setLogEnv
 prepareLogDir
 
 # Download and add alias target pointing to the server under test
-downloadMC
+setUpTestClient
 
 # run the tests
-runMCTests
+runTests
 
 # Remove mc binary
-cleanUP
+cleanUp
 

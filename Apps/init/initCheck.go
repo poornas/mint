@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	endpoint := os.Getenv("S3_ADDRESS")
+	endpoint := os.Getenv("SERVER_ENDPOINT")
 	accessKeyID := os.Getenv("ACCESS_KEY")
 	secretAccessKey := os.Getenv("SECRET_KEY")
 	useSSL := false
@@ -52,7 +52,7 @@ func main() {
 
 func addErrorLog(message string) {
 	errorLogFile := os.Getenv("INIT_ERROR_LOG_FILE")
-	file, err := os.OpenFile(errorLogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666) // For read access.
+	file, err := os.OpenFile(errorLogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -65,7 +65,7 @@ func addErrorLog(message string) {
 
 func addRunLog(message string) {
 	logFile := os.Getenv("INIT_LOG_FILE")
-	file, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666) // For read access.
+	file, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}

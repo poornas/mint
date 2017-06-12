@@ -1,6 +1,6 @@
 Apps:
-  #- init
-  #- mc
+  - init
+  - mc
   - minio-java
   - minio-py
   - minio-go
