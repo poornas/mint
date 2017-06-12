@@ -69,14 +69,9 @@ runTests() {
 				#fi
 
 				# Run test
-				currTest "$SDK" #-s  2>&1  >| $SDK_LOG_DIR/"$SDK"_log.txt  
+				currTest "$SDK" # -s  2>&1  >>| $SDK_LOG_DIR/"$SDK"_log.txt  
 				
-				# cat $SDK_LOG_DIR/"$sdk"_log.txt
-				# Count failed runs
-				#if [ -s "$SDK_LOG_DIR/error.log" ] 
-		 		# then 
-		     	#	let "errorCounter = errorCounter + 1" 
-				# fi
+			
 			fi
 		done
 }

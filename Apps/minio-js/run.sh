@@ -38,6 +38,8 @@ setUpTestClient() {
 	npm-check-updates -u
 	npm install
 	npm link 
+
+	export FUNCTIONAL_TEST_TRACE=$LOG_DIR/error.log
 }
 
 runTests() {
@@ -57,3 +59,5 @@ setUpTestClient -s  2>&1  >| $JS_LOG_FILE
 runTests -s  2>&1  >| $JS_LOG_FILE
 
 grep -q 'Error:|FAIL' $JS_LOG_FILE > $JS_ERROR_LOG_FILE
+
+exit 0
