@@ -15,69 +15,56 @@
 #  limitations under the License.
 #
 
-setLogEnv() {
-    export MC_LOG_DIRECTORY=$(echo ../../$LOG_DIR/${PWD##*/})
-    export MC_ERROR_LOG_FILE=$(echo $MC_LOG_DIRECTORY/"error.log")
-    export MC_LOG_FILE=$(echo $MC_LOG_DIRECTORY/"output.log")
-
-    if [ $ENABLE_HTTPS -eq "1" ]; then
-        export TARGET_ADDRESS_WITH_PROTOCOL="https://"$SERVER_ENDPOINT
-    else
-        export TARGET_ADDRESS_WITH_PROTOCOL="http://"$SERVER_ENDPOINT
-    fi
-}
-
-prepareLogDir() {
-    # clear old logs 
-    rm -r echo $MC_LOG_DIRECTORY 2> /dev/null
-
-    # create log directory
-    mkdir $MC_LOG_DIRECTORY 2> /dev/null
-
-    # create log files
-    touch $MC_ERROR_LOG_FILE
-    touch $MC_LOG_FILE
-}
-
 cleanUp(){
     # remove mc 
     rm mc
 }
 
-setUpTestClient() {
+build() {
+        
+    if [ $ENABLE_HTTPS -eq "1" ]; then
+        target_address="https://"$SERVER_ENDPOINT
+    else
+        target_address="http://"$SERVER_ENDPOINT
+    fi
+
     # Download latest MC release
-    curl -s -o mc https://dl.minio.io/client/mc/release/linux-amd64/mc
-    
+    # curl -s -o mc https://dl.minio.io/client/mc/release/linux-amd64/mc
+    curl -s -o mc https://dl.minio.io/client/mc/release/darwin-amd64/mc
+
     res=$?
     if test "$res" != "0"; then
-        echo "curl command to download mc failed with: $res" >> $MC_ERROR_LOG_FILE
+        echo "curl command to download mc failed with: $res"
         exit 1
     else 
         chmod +x ./mc
-        echo "Downloaded mc $(./mc version | grep Version)" >> $MC_LOG_FILE
-        echo "Adding mc host alias target $TARGET_ADDRESS_WITH_PROTOCOL" >> $MC_LOG_FILE
-        ./mc config host add target $TARGET_ADDRESS_WITH_PROTOCOL $ACCESS_KEY $SECRET_KEY >> $MC_LOG_FILE
+        echo "Downloaded mc $(./mc version | grep Version)"
+        echo "Adding mc host alias target $target_address"
+        ./mc config host add target $target_address $ACCESS_KEY $SECRET_KEY
     fi
 }
 
 # Execute test.sh 
-runTests() {
+run() {
     chmod +x ./test.sh
     ./test.sh
 }
 
-# Setup log directories 
-setLogEnv
+main() {
+    # Build test file binary
+    build -s  2>&1  >| $1
 
-# Create the log dir and files
-prepareLogDir
+    # run the tests
+    run -s  2>&1  >| $1
 
-# Download and add alias target pointing to the server under test
-setUpTestClient
+    # remove the executable
+    cleanUp
 
-# run the tests
-runTests
+    grep -q 'Error:|FAIL' $1 > $2
 
-# Remove mc binary
-cleanUp
+    return 0
+}
+
+# invoke the script
+main "$@"
 
