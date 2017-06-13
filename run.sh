@@ -58,7 +58,7 @@ runTest() {
 	
 	chmod +x ./run.sh
 
-	./run.sh "$sdk_log_dir/$log_file_name" "$sdk_log_dir/$error_file_name" "$1"
+	./run.sh "$sdk_log_dir/$log_file_name" "$sdk_log_dir/$error_file_name"
 	
 	cd ../..
 }
@@ -81,5 +81,4 @@ main() {
 		done
 }
 
-_init  
-main
+_init && main 

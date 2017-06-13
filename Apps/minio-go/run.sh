@@ -15,6 +15,11 @@
 #  limitations under the License.
 #
 
+cleanUp(){
+    # remove binary 
+    rm minio.test
+}
+
 build() {
 	go test -c api_functional_v4_test.go -o minio.test
 }
@@ -30,6 +35,9 @@ main() {
 
     # run the tests
     run -s  2>&1  >| $1
+
+    # remove the executable
+    cleanUp
 
     grep -q 'Error:|FAIL' $1 > $2
 
