@@ -16,7 +16,7 @@ def create_logger(logFile):
     # add the handler to the root logger
     logging.getLogger('').addHandler(console)
     # create the logging file handler
-    fh = logging.FileHandler(logFile,mode="w")
+    fh = logging.FileHandler(logFile,mode="a")
  
     fmt = '%(levelname)s: - %(message)s at LineNo:%(lineno)d of:%(funcName)s in:%(module)s'
     formatter = logging.Formatter(fmt)

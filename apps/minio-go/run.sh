@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 #  Minio Cloud Storage, (C) 2017 Minio, Inc.
 #
@@ -30,11 +30,11 @@ run() {
 }
 
 main() {
-    # Build test file binary
-    build -s  2>&1  >| $1
+     # Build test file binary
+    build >>$1  2>&1
 
     # run the tests
-    run -s  2>&1  >| $1
+    run >>$1  2>&1
 
     # remove the executable
     cleanUp

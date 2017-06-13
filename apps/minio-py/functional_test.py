@@ -20,7 +20,7 @@ from minio.error import (ResponseError, PreconditionFailed,
 import logger as logger
 from decorator import log_decorate
 
-logger = logger.create_logger(sys.argv[1])
+logger = logger.create_logger(sys.argv[0])
 fake = Factory.create()
 # Generate unique string
 S3_ADDRESS = os.getenv('SERVER_ENDPOINT')
@@ -132,7 +132,6 @@ def put_small_object_from_stream_test(client,bucket_name, object_name):
         os.remove(testfile)
         stat = client.stat_object(bucket_name,object_name)
         assert stat.size == file_stat.st_size
-        logger.info("OK")
     except Exception as err:
         logger.error(err)
         raise
@@ -485,7 +484,6 @@ def init_client():
     return client
 
 def setup(client): 
-    logger.info("setting up py client.....")
     bucket_name = generate_random_string().lower()
     object_name = uuid.uuid4().__str__().lower()
     make_bucket_test(client, bucket_name)
@@ -536,4 +534,3 @@ def teardown(client,bucket_name, object_name, suffixes):
 if __name__ == '__main__':
     client = init_client()
     run_tests(client)
-   

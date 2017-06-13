@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 #  Minio Cloud Storage, (C) 2017 Minio, Inc.
 #
