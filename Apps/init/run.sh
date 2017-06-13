@@ -15,30 +15,30 @@
 #  limitations under the License.
 #
 
-setLogEnv() {
-    export INIT_LOG_DIR=$(echo ../../$LOG_DIR/${PWD##*/})
-    export INIT_ERROR_LOG_FILE=$(echo $INIT_LOG_DIR/"error.log")
-    export INIT_LOG_FILE=$(echo $INIT_LOG_DIR/"output.log")
-}
+# setLogEnv() {
+#     export INIT_LOG_DIR=$(echo ../../$LOG_DIR/${PWD##*/})
+#     export INIT_ERROR_LOG_FILE=$(echo $INIT_LOG_DIR/"error.log")
+#     export INIT_LOG_FILE=$(echo $INIT_LOG_DIR/"output.log")
+# }
 
-prepareLogDir() {
-    # clear old logs 
-    rm -r echo $INIT_LOG_DIR 2> /dev/null
+# prepareLogDir() {
+#     # clear old logs 
+#     rm -r echo $INIT_LOG_DIR 2> /dev/null
 
-    # create log directory
-    mkdir $INIT_LOG_DIR 2> /dev/null
+#     # create log directory
+#     mkdir $INIT_LOG_DIR 2> /dev/null
 
-    # create log files
-    touch $INIT_ERROR_LOG_FILE
-    touch $INIT_LOG_FILE
-}
+#     # create log files
+#     touch $INIT_ERROR_LOG_FILE
+#     touch $INIT_LOG_FILE
+# }
 
 cleanUp() {
     # remove executable 
     rm initCheck 2> /dev/null
 }
 
-setUpTestClient() {
+build() {
     go build -o initCheck ./initCheck.go
 }
 

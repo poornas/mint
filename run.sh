@@ -15,13 +15,14 @@
 #  limitations under the License.
 #
 
-ROOT_DIR="$PWD"
-TEST_DIR="apps"
-
-let "errorCounter = 0"
+root_dir="$PWD"
+test_dir="apps"
+log_dir="log"
+error_file_name="error.log"
+log_file_name="output.log"
 
 # Setup environment variables for the run.
-setup() {
+_init() {
 	set -e
 
 	# If SERVER_ENDPOINT is not set the tests are run on play.minio.io by default.
@@ -36,51 +37,49 @@ setup() {
 	fi
 
 	# other env vars
-	export S3_REGION="us-east1"  # needed for minio-java
-	export LOG_DIR="log"
+	export S3_REGION="us-east-1"  # needed for minio-java
+	
 }
 
 # Run the current SDK Test
-currTest() {
-	cd $TEST_DIR/$1
+runTest() {
+
+	# Clear log directories before run.
+	local sdk_log_dir=$root_dir/$log_dir/$1
+	
+	# make and clean SDK specific log directories.
+	if [ ! -d $sdk_log_dir ]
+		then
+			mkdir $sdk_log_dir
+		else 
+			rm -rf $sdk_log_dir/*
+	fi
+	cd $test_dir/$1
+	
 	chmod +x ./run.sh
-	./run.sh  $ROOT_DIR  $TEST_DIR $(basename $1)
+
+	./run.sh "$sdk_log_dir/$log_file_name" "$sdk_log_dir/$error_file_name" "$1"
+	
 	cd ../..
 }
 
 # Cycle through the sdk directories and run sdk tests
-runTests() {
-	for i in $(yq  -r '.apps[]' $ROOT_DIR/config.yaml ); 
+main() {
+	for i in $(yq  -r '.apps[]' $root_dir/config.yaml ); 
 		do 
-			f=$ROOT_DIR/$TEST_DIR/$i
-			echo "running .... $f"
+			f=$root_dir/$test_dir/$i
 			if [ -d ${f} ]; then
+				echo "running .... $f"
 
 		        # Will not run if no directories are available
-		        SDK="$(basename $f)"
+		        sdk="$(basename $f)"
 
-		        # Clear log directories before run.
-		        #SDK_LOG_DIR=$ROOT_DIR/$LOG_DIR/$SDK/
-		        #if [ ! -d $SDK_LOG_DIR ]
-			  	#	then
-			  	#		mkdir $SDK_LOG_DIR
-			  	#	else 
-			  	#		rm -rf $SDK_LOG_DIR/*
-				#fi
-
-				# Run test
-				currTest "$SDK" # -s  2>&1  >>| $SDK_LOG_DIR/"$SDK"_log.txt  
-				
-			
+		        # Run test
+				runTest "$sdk"	
+		
 			fi
 		done
 }
 
-setup
-runTests
-
-#if [ $errorCounter -ne 0 ]; then 
-#	exit 1
-#fi
-
-# exit 0
+_init  
+main

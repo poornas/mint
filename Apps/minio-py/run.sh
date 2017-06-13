@@ -15,50 +15,28 @@
 #  limitations under the License.
 #
 
-setLogEnv() {
-    export PYTHON_LOG_DIRECTORY=$(echo ../../$LOG_DIR/${PWD##*/})
-    export PYTHON_ERROR_LOG_FILE=$(echo $PYTHON_LOG_DIRECTORY/"error.log")
-    export PYTHON_LOG_FILE=$(echo $PYTHON_LOG_DIRECTORY/"output.log")
-}
-
-prepareLogDir() {
-    # clear old logs 
-    rm -r echo $PYTHON_LOG_DIRECTORY 2> /dev/null
-
-    # create log directory
-    mkdir $PYTHON_LOG_DIRECTORY 2> /dev/null
-
-    # create log files
-    touch $PYTHON_ERROR_LOG_FILE
-    touch $PYTHON_LOG_FILE
-}
-
-# This will be factored out when build environment is readied
-setUpTestClient() {
-	echo requirements.txt
+build() {
 	pip3 install --user -r requirements.txt
 	pip3 install minio
 }
 
-# Run the test
-runTests() {
-	python3 ./functional_test.py "$LOG_DIR" 
+run() {
+	python3 ./functional_test.py $1 
 }
 
-# Setup log directories 
-setLogEnv
+main () {
 
-# Create the log dir and files
-prepareLogDir
+    # Build test file binary
+    build -s  2>&1  >| $1
 
-# Build test file binary
-setUpTestClient -s  2>&1  >| $PYTHON_LOG_FILE
+    # run the tests
+    run -s  2>&1  >| $1
 
-# run the tests
-runTests -s  2>&1  >| $PYTHON_LOG_FILE
+    grep -q 'ERROR' $1 > $2
 
-# Remove test binary
-cleanUp
+    return 0
+}
 
-grep -q 'ERROR' $PYTHON_LOG_FILE > $PYTHON_ERROR_LOG_FILE
+# invoke the script
+main "$@"
 

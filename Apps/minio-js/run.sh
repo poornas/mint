@@ -15,49 +15,32 @@
 #  limitations under the License.
 #
 
-setLogEnv() {
-    export JS_LOG_DIRECTORY=$(echo ../../$LOG_DIR/${PWD##*/})
-    export JS_ERROR_LOG_FILE=$(echo $JS_LOG_DIRECTORY/"error.log")
-    export JS_LOG_FILE=$(echo $JS_LOG_DIRECTORY/"output.log")
-}
-
-prepareLogDir() {
-    # clear old logs 
-    rm -r echo $JS_LOG_DIRECTORY 2> /dev/null
-
-    # create log directory
-    mkdir $JS_LOG_DIRECTORY 2> /dev/null
-
-    # create log files
-    touch $JS_ERROR_LOG_FILE
-    touch $JS_LOG_FILE
-}
-
-setUpTestClient() {
+build() {
 	npm i -g npm-check-updates
 	npm-check-updates -u
 	npm install
 	npm link 
 
-	export FUNCTIONAL_TEST_TRACE=$LOG_DIR/error.log
+	# TODO: set this var in top level config.yaml
+    # export FUNCTIONAL_TEST_TRACE=$LOG_DIR/error.log
 }
 
-runTests() {
+run() {
 	npm test
 }
 
-# Setup log directories 
-setLogEnv
+main () {
 
-# Create the log dir and files
-prepareLogDir
+    # Build test file binary
+    build -s  2>&1  >| $1
 
-# Build test file binary
-setUpTestClient -s  2>&1  >| $JS_LOG_FILE
+    # run the tests
+    run -s  2>&1  >| $1
 
-# run the tests
-runTests -s  2>&1  >| $JS_LOG_FILE
+    grep -q 'Error:|FAIL' $1 > $2
 
-grep -q 'Error:|FAIL' $JS_LOG_FILE > $JS_ERROR_LOG_FILE
+    return 0
+}
 
-exit 0
+# invoke the script
+main "$@"
